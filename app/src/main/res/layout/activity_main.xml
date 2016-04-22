@@ -3,15 +3,31 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
->
+    android:layout_height="match_parent">
 
     <!-- Include the AppBarLayout -->
     <include layout="@layout/appbar" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!" />
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:orientation="vertical"
+        android:weightSum="3">
+
+        <com.github.nitrico.mapviewpager.MapViewPager
+            android:id="@+id/mapViewPager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:viewPagerWeight="2"
+            app:mapWeight="1"
+            app:mapGravity="@integer/map_gravity"
+            app:mapPaddingTop="40dp"
+            app:mapOffset="56dp" />
+
+    </LinearLayout>
+
 
 </android.support.design.widget.CoordinatorLayout>

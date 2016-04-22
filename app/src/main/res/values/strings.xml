@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Pulzit Discovery</string>
+
+    <string name="my_location">Mi ubicación</string>
 </resources>
