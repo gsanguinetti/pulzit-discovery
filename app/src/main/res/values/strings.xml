@@ -1,5 +1,12 @@
 <resources>
-    <string name="app_name">Pulzit Discovery</string>
+    <string name="app_name">Discovery</string>
 
     <string name="my_location">Mi ubicación</string>
+    <string name="discover">Descubrir lugares</string>
+    <string name="place_types">Tipos de lugares</string>
+    <string name="place_query">Nombre a buscar</string>
+    <string name="search_all">Buscar todo</string>
+    <string name="order_by">Ordenar por</string>
+    <string name="select_places">Seleccione los tipos</string>
+    <string name="select_any_place">Seleccione por lo menos un tipo de lugar para realizar el descubrimiento</string>
 </resources>

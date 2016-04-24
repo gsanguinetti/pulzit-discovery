@@ -3,26 +3,33 @@ package com.pulzit.discovery.ui;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.view.animation.AccelerateInterpolator;
 
 import com.github.nitrico.mapviewpager.MapViewPager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderApi;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.pulzit.discovery.R;
+
+import java.util.List;
+
+import me.alexrs.wavedrawable.WaveDrawable;
+import se.walkercrou.places.Place;
 
 public class DiscoveryActivity extends AppCompatActivity implements MapViewPager.Callback, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener, SearchFragment.OnFragmentInteractionListener {
@@ -33,14 +40,17 @@ public class DiscoveryActivity extends AppCompatActivity implements MapViewPager
     private LocationRequest locationRequest;
     private DiscoveryAdapter adapter;
 
+    private View targetView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mapViewPager = (MapViewPager) findViewById(R.id.mapViewPager);
+        targetView = findViewById(R.id.targetView);
 
         initAppBar();
-        if(isGooglePlayServicesAvailable()) {
+        if (isGooglePlayServicesAvailable()) {
             startLocation();
         }
 
@@ -121,6 +131,11 @@ public class DiscoveryActivity extends AppCompatActivity implements MapViewPager
         fusedLocationProviderApi.requestLocationUpdates(googleApiClient, locationRequest, this);
     }
 
+    private void resetSearch() {
+        targetView.setBackground(ContextCompat.getDrawable(this, R.drawable.oval_shape));
+        mapViewPager.getMap().getUiSettings().setAllGesturesEnabled(true);
+    }
+
     @Override
     public void onConnectionSuspended(int i) {
 
@@ -137,7 +152,34 @@ public class DiscoveryActivity extends AppCompatActivity implements MapViewPager
     }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
+    public void onStartSearch() {
+        WaveDrawable waveDrawable = new WaveDrawable(ContextCompat.getColor(this, R.color.colorWave),
+                500);
+        waveDrawable.setWaveInterpolator(new AccelerateInterpolator());
+        targetView.setBackground(waveDrawable);
+        waveDrawable.startAnimation();
+        mapViewPager.getMap().getUiSettings().setAllGesturesEnabled(false);
+    }
+
+    @Override
+    public void onFinishSearchFailed() {
+        resetSearch();
+    }
+
+    @Override
+    public void onFinishSearchSuccessful(List<Place> places) {
+        if (places != null && places.size() > 0) {
+            adapter.setPlaces(places);
+            adapter.notifyDataSetChanged();
+            mapViewPager.onMapReady(mapViewPager.getMap());
+        } else {
+        }
+        resetSearch();
+    }
+
+    @Override
+    public LatLngBounds getSearchableArea() {
+        return mapViewPager.getMap().getProjection().getVisibleRegion().latLngBounds;
 
     }
 }
