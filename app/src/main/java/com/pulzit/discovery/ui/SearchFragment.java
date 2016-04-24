@@ -122,14 +122,17 @@ public class SearchFragment extends Fragment {
         query.lng = latLngBounds.getCenter().longitude;
         query.radius = SphericalUtil.computeDistanceBetween(latLngBounds.getCenter(),
                 latLngBounds.northeast);
+        query.orderBy = orderBySpinner.getSelectedItem().toString();
         if (keywordsTextView.getText() != null && !keywordsTextView.getText().toString().equals("")) {
             query.keywords = keywordsTextView.getText().toString();
+            //Google places api does not allow keyword search ordered by distance
+            query.orderBy = "prominence";
+
         }
         String types = placeTypesSpinner.getSelectedString();
         if (types != null && !types.equals("")) {
             query.types = placeTypesSpinner.getSelectedString();
         }
-        query.orderBy = orderBySpinner.getSelectedItem().toString();
 
         return query;
     }
