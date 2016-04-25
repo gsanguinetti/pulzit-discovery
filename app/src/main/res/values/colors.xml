@@ -5,4 +5,5 @@
     <color name="colorAccent">#2BB673</color>
     <color name="colorSearchCard">#3D996C</color>
     <color name="colorWave">#903D996C</color>
+    <color name="colorPlaceholder">#EEEEEE</color>
 </resources>

@@ -3,6 +3,7 @@ package com.pulzit.discovery.ui;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -32,7 +33,8 @@ import me.alexrs.wavedrawable.WaveDrawable;
 import se.walkercrou.places.Place;
 
 public class DiscoveryActivity extends AppCompatActivity implements MapViewPager.Callback, GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener, LocationListener, SearchFragment.OnFragmentInteractionListener {
+        GoogleApiClient.OnConnectionFailedListener, LocationListener, SearchFragment.OnFragmentInteractionListener,
+        PlaceFragment.OnFragmentInteractionListener {
 
     private MapViewPager mapViewPager;
     private FusedLocationProviderApi fusedLocationProviderApi = LocationServices.FusedLocationApi;
@@ -180,6 +182,11 @@ public class DiscoveryActivity extends AppCompatActivity implements MapViewPager
     @Override
     public LatLngBounds getSearchableArea() {
         return mapViewPager.getMap().getProjection().getVisibleRegion().latLngBounds;
+
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
 
     }
 }

@@ -32,4 +32,5 @@ dependencies {
     compile 'se.walkercrou:google-places-api-java:2.1.2'
     compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
     compile 'me.alexrs:wave-drawable:1.0.0'
+    compile 'com.squareup.picasso:picasso:2.5.2'
 }

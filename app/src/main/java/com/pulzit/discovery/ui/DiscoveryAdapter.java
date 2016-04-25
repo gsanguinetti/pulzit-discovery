@@ -49,7 +49,10 @@ public class DiscoveryAdapter extends MapViewPager.Adapter {
     public Fragment getItem(int position) {
         if (position == 0)
             return SearchFragment.newInstance();
-        return SearchFragment.newInstance();
+
+        Place place = places.get(position - 1);
+        return PlaceFragment.newInstance(place.getName(), place.getVicinity(), place.getPlaceId(),
+                place.getLatitude(), place.getLongitude(), place.getIconUrl());
     }
 
     @Override
