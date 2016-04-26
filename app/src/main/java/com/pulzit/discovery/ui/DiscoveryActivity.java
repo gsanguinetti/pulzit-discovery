@@ -1,9 +1,12 @@
 package com.pulzit.discovery.ui;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -14,6 +17,9 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
+import android.widget.Toast;
 
 import com.github.nitrico.mapviewpager.MapViewPager;
 import com.google.android.gms.common.ConnectionResult;
@@ -27,6 +33,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.pulzit.discovery.R;
 
+import com.twitter.sdk.android.Twitter;
+import com.twitter.sdk.android.core.Callback;
+import com.twitter.sdk.android.core.Result;
+import com.twitter.sdk.android.core.TwitterAuthConfig;
+import com.twitter.sdk.android.core.TwitterCore;
+import com.twitter.sdk.android.core.TwitterException;
+import com.twitter.sdk.android.core.TwitterSession;
+import com.twitter.sdk.android.core.identity.TwitterLoginButton;
+
+import io.fabric.sdk.android.Fabric;
 import java.util.List;
 
 import me.alexrs.wavedrawable.WaveDrawable;
@@ -36,25 +52,58 @@ public class DiscoveryActivity extends AppCompatActivity implements MapViewPager
         GoogleApiClient.OnConnectionFailedListener, LocationListener, SearchFragment.OnFragmentInteractionListener,
         PlaceFragment.OnFragmentInteractionListener {
 
+    // Note: Your consumer key and secret should be obfuscated in your source code before shipping.
+    private static final String TWITTER_KEY = "gu5ZVXvQEu1jcVFv0G7b7atGi";
+    private static final String TWITTER_SECRET = "cjjVkzlQB0atspS1ks60l9FK019Tczxt88SaoD7aB7JvUhJJFp";
+
+
     private MapViewPager mapViewPager;
     private FusedLocationProviderApi fusedLocationProviderApi = LocationServices.FusedLocationApi;
     private GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
     private DiscoveryAdapter adapter;
+    private View twitterLoginView;
+    private TwitterLoginButton loginButton;
 
     private View targetView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        TwitterAuthConfig authConfig = new TwitterAuthConfig(TWITTER_KEY, TWITTER_SECRET);
+        Fabric.with(this, new Twitter(authConfig));
         setContentView(R.layout.activity_main);
         mapViewPager = (MapViewPager) findViewById(R.id.mapViewPager);
         targetView = findViewById(R.id.targetView);
+        twitterLoginView = findViewById(R.id.twitterLoginView);
 
         initAppBar();
         if (isGooglePlayServicesAvailable()) {
             startLocation();
         }
+
+        if(Twitter.getSessionManager().getActiveSession() == null)
+            twitterLoginView.setVisibility(View.VISIBLE);
+
+        loginButton = (TwitterLoginButton) findViewById(R.id.login_button);
+        loginButton.setCallback(new Callback<TwitterSession>() {
+            @Override
+            public void success(Result<TwitterSession> result) {
+                if(result.data.getUserName().equals("pulzit")) {
+                    twitterLoginView.setVisibility(View.GONE);
+                } else {
+                    Toast.makeText(DiscoveryActivity.this, R.string.twitter_login_bad_account,
+                            Toast.LENGTH_LONG).show();
+                    logoutTwitter();
+                }
+            }
+
+            @Override
+            public void failure(TwitterException exception) {
+                Toast.makeText(DiscoveryActivity.this, R.string.twitter_login_error,
+                        Toast.LENGTH_LONG).show();
+            }
+        });
 
     }
 
@@ -188,5 +237,37 @@ public class DiscoveryActivity extends AppCompatActivity implements MapViewPager
     @Override
     public void onFragmentInteraction(Uri uri) {
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Pass the activity result to the login button.
+        loginButton.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public void logoutTwitter() {
+        TwitterSession twitterSession = TwitterCore.getInstance().getSessionManager().getActiveSession();
+        if (twitterSession != null) {
+            ClearCookies(getApplicationContext());
+            Twitter.getSessionManager().clearActiveSession();
+            Twitter.logOut();
+        }
+    }
+
+    public static void ClearCookies(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            CookieManager.getInstance().removeAllCookies(null);
+            CookieManager.getInstance().flush();
+        } else {
+            CookieSyncManager cookieSyncMngr= CookieSyncManager.createInstance(context);
+            cookieSyncMngr.startSync();
+            CookieManager cookieManager= CookieManager.getInstance();
+            cookieManager.removeAllCookie();
+            cookieManager.removeSessionCookie();
+            cookieSyncMngr.stopSync();
+            cookieSyncMngr.sync();
+        }
     }
 }
