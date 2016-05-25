@@ -195,6 +195,12 @@ public class SearchPlacesFragment extends Fragment implements OnPlaceSearchFinis
         onFinishSearch();
     }
 
+    @Override
+    public void onPlacesSearchFailed() {
+        onFragmentInteractionListener.onFinishSearchFailed();
+        onFinishSearch();
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated

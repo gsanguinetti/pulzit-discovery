@@ -225,6 +225,7 @@ public class DiscoveryActivity extends AppCompatActivity implements MapViewPager
     @Override
     public void onFinishSearchFailed() {
         resetSearch();
+        Toast.makeText(this, R.string.error_firebase, Toast.LENGTH_LONG).show();
     }
 
     public void onRestartSearch() {

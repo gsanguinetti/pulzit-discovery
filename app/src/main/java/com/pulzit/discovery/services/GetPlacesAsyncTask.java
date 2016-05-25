@@ -37,17 +37,24 @@ public class GetPlacesAsyncTask extends AsyncTask<PlacesQuery, Integer, List<Pla
     protected List<Place> doInBackground(PlacesQuery... params) {
         PlacesQuery query = params[0];
         List<Place> rowPlaces;
-        if (query.getKeywords() != null) {
-            rowPlaces = googlePlacesClient.getNearbyPlaces(query.getLat(), query.getLng(), query.getRadius(),
-                    Param.name("language").value(query.getLang()),
-                    Param.name("types").value(query.getTypes()),
-                    Param.name("rankby").value(query.getOrderBy()),
-                    Param.name("keyword").value(query.getKeywords()));
-        } else {
-            rowPlaces = googlePlacesClient.getNearbyPlaces(query.getLat(), query.getLng(), query.getRadius(),
-                    Param.name("language").value(query.getLang()),
-                    Param.name("types").value(query.getTypes()),
-                    Param.name("rankBy").value(query.getOrderBy()));
+        try {
+            if (query.getKeywords() != null) {
+                rowPlaces = googlePlacesClient.getNearbyPlaces(query.getLat(), query.getLng(), query.getRadius(),
+                        Param.name("language").value(query.getLang()),
+                        Param.name("types").value(query.getTypes()),
+                        Param.name("rankby").value(query.getOrderBy()),
+                        Param.name("keyword").value(query.getKeywords()));
+            } else {
+                rowPlaces = googlePlacesClient.getNearbyPlaces(query.getLat(), query.getLng(), query.getRadius(),
+                        Param.name("language").value(query.getLang()),
+                        Param.name("types").value(query.getTypes()),
+                        Param.name("rankBy").value(query.getOrderBy()));
+            }
+        } catch (Exception ex) {
+            if(ex.getCause().getMessage().contains("ZERO_RESULTS")) {
+                return new ArrayList<Place>();
+            }
+            return null;
         }
         List<Place> undiscoveredPlaces = new ArrayList<>();
         for (Place place : rowPlaces) {
@@ -73,9 +80,13 @@ public class GetPlacesAsyncTask extends AsyncTask<PlacesQuery, Integer, List<Pla
     protected void onPostExecute(List<Place> places) {
         super.onPostExecute(places);
         if (onPlaceSearchFinishedListener != null) {
-            onPlaceSearchFinishedListener.onPlacesSearchFinished(places);
+            if(places == null) {
+                onPlaceSearchFinishedListener.onPlacesSearchFailed();
+            } else {
+                onPlaceSearchFinishedListener.onPlacesSearchFinished(places);
+                Toast.makeText(context, context.getString(R.string.discovery_stats, undiscoveredQty, discoveredQty), Toast.LENGTH_LONG )
+                        .show();
+            }
         }
-        Toast.makeText(context, context.getString(R.string.discovery_stats, undiscoveredQty, discoveredQty), Toast.LENGTH_LONG )
-                .show();
     }
 }

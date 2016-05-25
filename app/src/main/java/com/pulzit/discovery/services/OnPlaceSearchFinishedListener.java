@@ -9,5 +9,6 @@ import se.walkercrou.places.Place;
  */
 public interface OnPlaceSearchFinishedListener {
     void onPlacesSearchFinished(List<Place> places);
+    void onPlacesSearchFailed();
     void onPlacesSearchCancelled(List<Place> places);
 }
