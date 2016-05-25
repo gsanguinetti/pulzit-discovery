@@ -33,8 +33,8 @@ public class DiscoveryAdapter extends MapViewPager.Adapter {
         if (position == 0 && userPosition != null) {
             return CameraPosition.fromLatLngZoom(userPosition, 14f);
         }
-        LatLng placeLatLng = new LatLng(places.get(position-1).getLatitude(),
-                places.get(position-1).getLongitude());
+        LatLng placeLatLng = new LatLng(places.get(position - 1).getLatitude(),
+                places.get(position - 1).getLongitude());
         return CameraPosition.fromLatLngZoom(placeLatLng, 16f);
     }
 
@@ -48,10 +48,10 @@ public class DiscoveryAdapter extends MapViewPager.Adapter {
     @Override
     public Fragment getItem(int position) {
         if (position == 0)
-            return SearchFragment.newInstance();
+            return SearchPlacesFragment.newInstance();
 
         Place place = places.get(position - 1);
-        return PlaceFragment.newInstance(place.getName(), place.getVicinity(), place.getPlaceId(),
+        return ShowPlaceFragment.newInstance(place.getName(), place.getVicinity(), place.getPlaceId(),
                 place.getLatitude(), place.getLongitude(), place.getIconUrl());
     }
 
@@ -62,6 +62,25 @@ public class DiscoveryAdapter extends MapViewPager.Adapter {
         } else {
             return 1;
         }
+    }
+
+    public void removeItem(int position) {
+        if (position <= places.size()) {
+            places.remove(position);
+            notifyDataSetChanged();
+        }
+    }
+
+    public int size() {
+        if (places != null)
+            return places.size();
+        return -1;
+    }
+
+    public Place getPlaceAt(int position) {
+        if (places.size() > position)
+            return places.get(position);
+        return null;
     }
 
     public LatLng getUserPosition() {

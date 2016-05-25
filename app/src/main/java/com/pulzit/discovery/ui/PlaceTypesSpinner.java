@@ -11,6 +11,8 @@ import android.widget.Spinner;
 import com.pulzit.discovery.R;
 
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlaceTypesSpinner extends Spinner {
 
@@ -32,6 +34,10 @@ public class PlaceTypesSpinner extends Spinner {
                 new String[]{getContext().getString(R.string.select_places)});
         setAdapter(adapter);
         a.recycle();
+    }
+
+    public void setEntries(CharSequence[] entries) {
+        this.entries = entries;
     }
 
     private DialogInterface.OnMultiChoiceClickListener mOnMultiChoiceClickListener = new DialogInterface.OnMultiChoiceClickListener() {
@@ -105,4 +111,5 @@ public class PlaceTypesSpinner extends Spinner {
         }
         return URLEncoder.encode(selectedString);
     }
+
 }

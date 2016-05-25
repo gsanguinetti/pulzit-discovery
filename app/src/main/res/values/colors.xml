@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#2BB673</color>
-    <color name="colorPrimaryDark">#3D996C</color>
-    <color name="colorAccent">#2BB673</color>
-    <color name="colorSearchCard">#3D996C</color>
-    <color name="colorWave">#903D996C</color>
+    <color name="colorPrimary">#444444</color>
+    <color name="colorPrimaryDark">#222222</color>
+    <color name="colorAccent">#ED1C24</color>
+    <color name="colorSearchCard">#444444</color>
+    <color name="colorWave">#90ED1C24</color>
+    <color name="colorButtonSelected">#60444444</color>
     <color name="colorPlaceholder">#EEEEEE</color>
 </resources>

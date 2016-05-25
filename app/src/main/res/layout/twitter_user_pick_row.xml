@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:orientation="horizontal"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:paddingLeft="16dp" android:paddingRight="16dp" android:paddingTop="8dp"
+    android:paddingBottom="8dp" android:descendantFocusability="blocksDescendants">
+
+    <RadioButton
+        android:id="@+id/twitterUserSelected"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <ImageView
+        android:id="@+id/twitterImage"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_marginLeft="16dp"
+        android:background="@drawable/rounded_image_view_bkg"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/twitterName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:ellipsize="end"
+            android:textAppearance="@style/tw__TweetText.Compact"
+            android:textColor="@android:color/secondary_text_light"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:singleLine="true"
+            android:text="                             "
+            tools:text="                               " />
+
+        <TextView
+            android:id="@+id/twitterAccount"
+            android:textAppearance="@style/tw__TweetText.Compact"
+            android:singleLine="true"
+            android:textColor="@color/tw__medium_gray"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:ellipsize="end"
+            android:text="                             "
+            tools:text="                             " />
+
+        <TextView
+            android:id="@+id/twitterDesc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:textAppearance="@style/tw__TweetText.Compact"
+            android:textColor="@android:color/secondary_text_light"
+            tools:text="asdsasd fas dfsa df asdf a rsgf asr ga rsgd dasfd grwtyrwtsdf gsd fg sdfg ds fg sdtrrsdfgfdg sdf gds f" />
+
+    </LinearLayout>
+
+</LinearLayout>

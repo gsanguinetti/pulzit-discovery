@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "939168992077",
+    "firebase_url": "https://pulzit2.firebaseio.com",
+    "project_id": "pulzit2",
+    "storage_bucket": "pulzit2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:939168992077:android:b6db5706c6b617f4",
+        "android_client_info": {
+          "package_name": "com.pulzit.discovery"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "939168992077-5qdduoicmifclju4ljhl8v2rhin8eud3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pulzit.discovery",
+            "certificate_hash": "F43361F488DB29F8FE31EA81CEC154E4B94C16E4"
+          }
+        },
+        {
+          "client_id": "939168992077-238g67r74g9ndog2ia1imutu61684jp6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCPRGLDEi8cR9My8IozlQqFULtcgTMvRA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "939168992077-238g67r74g9ndog2ia1imutu61684jp6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

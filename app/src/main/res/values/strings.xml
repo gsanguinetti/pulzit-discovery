@@ -10,8 +10,33 @@
     <string name="select_places">Seleccione los tipos</string>
     <string name="select_any_place">Seleccione por lo menos un tipo de lugar para realizar el descubrimiento</string>
     <string name="twitter_details">Cuenta de Twitter</string>
-    <string name="twitter_login_msg">Para comenzar a usar Discovery tienes que hacer login en facebook con <b>la cuenta oficial de Pulzit (@pulzit)</b></string>
+    <string name="twitter_login_msg">Para comenzar a usar Discovery tienes que hacer login en facebook con <b>la cuenta oficial de PulzitBA (@pulzit_ba)</b></string>
     <string name="twitter_login_error">Error al loguearse en Twitter, por favor prueba nuevamente</string>
-    <string name="twitter_login_bad_account">No te logueaste con la cuenta de Pulzit. Haz login nuevamente con la cuenta apropiada.</string>
+    <string name="twitter_login_bad_account">No te logueaste con la cuenta de PulzitBA. Haz login nuevamente con la cuenta apropiada.</string>
+    <string name="twitter_search_user">Buscar usuario</string>
+    <string name="twitter_search_user_of">Buscar cuenta de Twitter</string>
+    <string name="title_activity_search_users">SearchUsersActivity</string>
+    <string name="no_search_users">No hay resultados. Prueba con otros términos para tu búsqueda.</string>
+    <string name="error_search">Error obteniendo resultados, por favor prueba nuevamente.</string>
+    <string name="place_processed">Lugar procesado</string>
+    <string name="place_no_twitter">Este lugar no tiene cuenta de Twitter</string>
+    <string name="or">o</string>
+    <string name="place_no_suitable">Descartar lugar</string>
+    <string name="progress_msg">Actualizando información</string>
+    <string name="error_firebase">Error al acceder al servidor, por favor revise la conexión de internet e intentelo nuevamente.</string>
+    <string name="confirm">Confirm</string>
+
+    <string name="select_account_types">¿Para qué canal agregar este lugar?</string>
+
+    <string name="channel_news">#QuéEsLoQuePasa</string>
+    <string name="channel_promos">#CiudadDePromos</string>
+    <string name="channel_goingout">#HoySeSaleFuerte</string>
+    <string name="channel_culture">#DataCultural</string>
+    <string name="channel_food">#TengoHambre</string>
+    <string name="twitter_account_question">¿Es esta la cuenta oficial de este lugar?</string>
+    <string name="yes">Si</string>
+    <string name="no">No</string>
+
+    <string name="discovery_stats">Lugares sin descubrir encontrados: %1$s. Lugares ya descubiertos: %2$s.</string>
 
 </resources>

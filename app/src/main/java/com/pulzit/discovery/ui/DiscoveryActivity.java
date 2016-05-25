@@ -1,6 +1,7 @@
 package com.pulzit.discovery.ui;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -15,12 +16,15 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.widget.Toast;
 
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
 import com.github.nitrico.mapviewpager.MapViewPager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -33,6 +37,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.pulzit.discovery.R;
 
+import com.pulzit.discovery.global.UtilConstants;
+import com.pulzit.discovery.services.PulzitService;
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
@@ -43,14 +49,15 @@ import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 import io.fabric.sdk.android.Fabric;
+
 import java.util.List;
 
 import me.alexrs.wavedrawable.WaveDrawable;
 import se.walkercrou.places.Place;
 
 public class DiscoveryActivity extends AppCompatActivity implements MapViewPager.Callback, GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener, LocationListener, SearchFragment.OnFragmentInteractionListener,
-        PlaceFragment.OnFragmentInteractionListener {
+        GoogleApiClient.OnConnectionFailedListener, LocationListener, SearchPlacesFragment.OnFragmentInteractionListener,
+        ShowPlaceFragment.OnFragmentInteractionListener {
 
     // Note: Your consumer key and secret should be obfuscated in your source code before shipping.
     private static final String TWITTER_KEY = "gu5ZVXvQEu1jcVFv0G7b7atGi";
@@ -63,8 +70,10 @@ public class DiscoveryActivity extends AppCompatActivity implements MapViewPager
     private LocationRequest locationRequest;
     private DiscoveryAdapter adapter;
     private View twitterLoginView;
+    private View mapSearchContainer;
     private TwitterLoginButton loginButton;
 
+    private ProgressDialog processingPlaceDialog;
     private View targetView;
 
     @Override
@@ -76,20 +85,21 @@ public class DiscoveryActivity extends AppCompatActivity implements MapViewPager
         mapViewPager = (MapViewPager) findViewById(R.id.mapViewPager);
         targetView = findViewById(R.id.targetView);
         twitterLoginView = findViewById(R.id.twitterLoginView);
+        mapSearchContainer = findViewById(R.id.mapSearchContainer);
 
         initAppBar();
         if (isGooglePlayServicesAvailable()) {
             startLocation();
         }
 
-        if(Twitter.getSessionManager().getActiveSession() == null)
+        if (Twitter.getSessionManager().getActiveSession() == null)
             twitterLoginView.setVisibility(View.VISIBLE);
 
         loginButton = (TwitterLoginButton) findViewById(R.id.login_button);
         loginButton.setCallback(new Callback<TwitterSession>() {
             @Override
             public void success(Result<TwitterSession> result) {
-                if(result.data.getUserName().equals("pulzit")) {
+                if (result.data.getUserName().equals(UtilConstants.TW_USER)) {
                     twitterLoginView.setVisibility(View.GONE);
                 } else {
                     Toast.makeText(DiscoveryActivity.this, R.string.twitter_login_bad_account,
@@ -217,12 +227,21 @@ public class DiscoveryActivity extends AppCompatActivity implements MapViewPager
         resetSearch();
     }
 
+    public void onRestartSearch() {
+        mapViewPager.getViewPager().setCurrentItem(0);
+        mapSearchContainer.setVisibility(View.VISIBLE);
+        resetSearch();
+    }
+
     @Override
     public void onFinishSearchSuccessful(List<Place> places) {
         if (places != null && places.size() > 0) {
             adapter.setPlaces(places);
             adapter.notifyDataSetChanged();
             mapViewPager.onMapReady(mapViewPager.getMap());
+            mapSearchContainer.setVisibility(View.GONE);
+            mapViewPager.getViewPager().setCurrentItem(places.size());
+            mapViewPager.getViewPager().beginFakeDrag();
         } else {
         }
         resetSearch();
@@ -235,13 +254,14 @@ public class DiscoveryActivity extends AppCompatActivity implements MapViewPager
     }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
-
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == SearchUsersActivity.USER_PICK_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                onPlaceProcessed();
+            }
+        }
 
         // Pass the activity result to the login button.
         loginButton.onActivityResult(requestCode, resultCode, data);
@@ -261,13 +281,91 @@ public class DiscoveryActivity extends AppCompatActivity implements MapViewPager
             CookieManager.getInstance().removeAllCookies(null);
             CookieManager.getInstance().flush();
         } else {
-            CookieSyncManager cookieSyncMngr= CookieSyncManager.createInstance(context);
+            CookieSyncManager cookieSyncMngr = CookieSyncManager.createInstance(context);
             cookieSyncMngr.startSync();
-            CookieManager cookieManager= CookieManager.getInstance();
+            CookieManager cookieManager = CookieManager.getInstance();
             cookieManager.removeAllCookie();
             cookieManager.removeSessionCookie();
             cookieSyncMngr.stopSync();
             cookieSyncMngr.sync();
+        }
+    }
+
+    private void onPlaceProcessed() {
+        adapter.removeItem(mapViewPager.getViewPager().getCurrentItem() - 1);
+        mapViewPager.onMapReady(mapViewPager.getMap());
+        mapViewPager.getViewPager().setCurrentItem(mapViewPager.getViewPager().getAdapter().getCount());
+        Toast okToast = Toast.makeText(this, R.string.place_processed, Toast.LENGTH_SHORT);
+        okToast.setGravity(Gravity.CENTER, 0, -200);
+        okToast.show();
+        if (mapViewPager.getViewPager().getCurrentItem() == 0) {
+            onRestartSearch();
+        }
+
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        if (adapter != null && adapter.size() > 0 && mapViewPager.getViewPager().getCurrentItem() > 0) {
+            onRestartSearch();
+            return;
+        }
+
+        super.onBackPressed();
+    }
+
+    @Override
+    public void onPlaceDismissed() {
+        showProgressDialog();
+        Place place = adapter.getPlaceAt(mapViewPager.getViewPager().getCurrentItem() - 1);
+        PulzitService.getInstance().addPlaceToBlockedList(place.getPlaceId(), new Firebase.CompletionListener() {
+            @Override
+            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                if(firebaseError==null) {
+                    dismissProgressDialog();
+                    onPlaceProcessed();
+                } else {
+                    Toast.makeText(DiscoveryActivity.this, getString(R.string.error_firebase),
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onMissingAccountForPlace() {
+        showProgressDialog();
+        Place place = adapter.getPlaceAt(mapViewPager.getViewPager().getCurrentItem() - 1);
+        PulzitService.getInstance().addPlaceToAccountNotFoundList(place.getPlaceId(), new Firebase.CompletionListener() {
+            @Override
+            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                if(firebaseError==null) {
+                    dismissProgressDialog();
+                    onPlaceProcessed();
+                } else {
+                    Toast.makeText(DiscoveryActivity.this, getString(R.string.error_firebase),
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
+    private void showProgressDialog() {
+        if (processingPlaceDialog == null || !processingPlaceDialog.isShowing()) {
+            processingPlaceDialog = new ProgressDialog(this);
+            processingPlaceDialog.setMessage(getString(R.string.progress_msg));
+            processingPlaceDialog.setIndeterminate(true);
+            processingPlaceDialog.setCanceledOnTouchOutside(false);
+            processingPlaceDialog.setCancelable(false);
+            processingPlaceDialog.show();
+        }
+    }
+
+    private void dismissProgressDialog() {
+        if(processingPlaceDialog!= null && processingPlaceDialog.isShowing()){
+            processingPlaceDialog.dismiss();
+            processingPlaceDialog = null;
         }
     }
 }

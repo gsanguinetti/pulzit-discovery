@@ -103,4 +103,20 @@
         <item>prominence</item>
         <item>distance</item>
     </string-array>
+
+    <string-array name="channels_entries">
+        <item>news</item>
+        <item>promos</item>
+        <item>goingout</item>
+        <item>culture</item>
+        <item>food</item>
+    </string-array>
+
+    <string-array name="channels_mgs">
+        <item>@string/channel_news</item>
+        <item>@string/channel_promos</item>
+        <item>@string/channel_goingout</item>
+        <item>@string/channel_culture</item>
+        <item>@string/channel_food</item>
+    </string-array>
 </resources>

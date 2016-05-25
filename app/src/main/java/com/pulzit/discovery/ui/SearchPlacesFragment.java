@@ -18,6 +18,10 @@ import android.widget.Spinner;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.maps.android.SphericalUtil;
 import com.pulzit.discovery.R;
+import com.pulzit.discovery.domain.PlacesQuery;
+import com.pulzit.discovery.global.UtilConstants;
+import com.pulzit.discovery.services.GetPlacesAsyncTask;
+import com.pulzit.discovery.services.OnPlaceSearchFinishedListener;
 
 import java.util.List;
 
@@ -29,15 +33,15 @@ import se.walkercrou.places.Place;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link SearchFragment.OnFragmentInteractionListener} interface
+ * {@link SearchPlacesFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link SearchFragment#newInstance} factory method to
+ * Use the {@link SearchPlacesFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class SearchFragment extends Fragment {
+public class SearchPlacesFragment extends Fragment implements OnPlaceSearchFinishedListener {
 
-    private OnFragmentInteractionListener mListener;
-    GooglePlaces client;
+    private OnFragmentInteractionListener onFragmentInteractionListener;
+    GooglePlaces googlePlacesClient;
 
     GetPlacesAsyncTask getPlacesAsyncTask;
 
@@ -46,7 +50,7 @@ public class SearchFragment extends Fragment {
     PlaceTypesSpinner placeTypesSpinner;
     Spinner orderBySpinner;
 
-    public SearchFragment() {
+    public SearchPlacesFragment() {
         // Required empty public constructor
     }
 
@@ -54,11 +58,11 @@ public class SearchFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @return A new instance of fragment SearchFragment.
+     * @return A new instance of fragment SearchPlacesFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static SearchFragment newInstance() {
-        SearchFragment fragment = new SearchFragment();
+    public static SearchPlacesFragment newInstance() {
+        SearchPlacesFragment fragment = new SearchPlacesFragment();
         return fragment;
     }
 
@@ -77,7 +81,7 @@ public class SearchFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 
-        client = new GooglePlaces("AIzaSyAhI56ol5QeRBUODqV-H0LBCaJM5IJ20u8");
+        googlePlacesClient = new GooglePlaces("AIzaSyAhI56ol5QeRBUODqV-H0LBCaJM5IJ20u8");
 
         keywordsTextView = (EditText) view.findViewById(R.id.place_query_edittext);
         placeTypesSpinner = (PlaceTypesSpinner) view.findViewById(R.id.place_type_select);
@@ -104,7 +108,7 @@ public class SearchFragment extends Fragment {
     }
 
     private boolean validateFields(PlacesQuery query) {
-        if(query.types == null) {
+        if(query.getTypes() == null) {
             new AlertDialog.Builder(getActivity())
                     .setMessage(getContext().getString(R.string.select_any_place))
                     .setTitle(getContext().getString(R.string.select_places))
@@ -116,29 +120,30 @@ public class SearchFragment extends Fragment {
     }
 
     private PlacesQuery buildPlaceSearch() {
-        LatLngBounds latLngBounds = mListener.getSearchableArea();
+        LatLngBounds latLngBounds = onFragmentInteractionListener.getSearchableArea();
         PlacesQuery query = new PlacesQuery();
-        query.lat = latLngBounds.getCenter().latitude;
-        query.lng = latLngBounds.getCenter().longitude;
-        query.radius = SphericalUtil.computeDistanceBetween(latLngBounds.getCenter(),
-                latLngBounds.northeast);
-        query.orderBy = orderBySpinner.getSelectedItem().toString();
+        query.setLat(latLngBounds.getCenter().latitude);
+        query.setLng(latLngBounds.getCenter().longitude);
+        query.setLang(UtilConstants.PLACES_SEARCH_LANG);
+        query.setRadius(SphericalUtil.computeDistanceBetween(latLngBounds.getCenter(),
+                latLngBounds.northeast));
+        query.setOrderBy(orderBySpinner.getSelectedItem().toString());
         if (keywordsTextView.getText() != null && !keywordsTextView.getText().toString().equals("")) {
-            query.keywords = keywordsTextView.getText().toString();
+            query.setKeywords(keywordsTextView.getText().toString());
             //Google places api does not allow keyword search ordered by distance
-            query.orderBy = "prominence";
+            query.setOrderBy("prominence");
 
         }
         String types = placeTypesSpinner.getSelectedString();
         if (types != null && !types.equals("")) {
-            query.types = placeTypesSpinner.getSelectedString();
+            query.setTypes(placeTypesSpinner.getSelectedString());
         }
 
         return query;
     }
 
     void doSearch(PlacesQuery query) {
-        getPlacesAsyncTask = new GetPlacesAsyncTask();
+        getPlacesAsyncTask = new GetPlacesAsyncTask(getActivity(), this);
         getPlacesAsyncTask.execute(query);
         onStartSearch();
     }
@@ -148,7 +153,7 @@ public class SearchFragment extends Fragment {
         keywordsTextView.setEnabled(false);
         placeTypesSpinner.setEnabled(false);
         orderBySpinner.setEnabled(false);
-        mListener.onStartSearch();
+        onFragmentInteractionListener.onStartSearch();
     }
 
     public void onFinishSearch() {
@@ -162,7 +167,7 @@ public class SearchFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+            onFragmentInteractionListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -172,7 +177,22 @@ public class SearchFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+        onFragmentInteractionListener = null;
+    }
+
+    @Override
+    public void onPlacesSearchFinished(List<Place> places) {
+        for (Place place : places) {
+            Log.d("Place:", place.getName());
+        }
+        onFragmentInteractionListener.onFinishSearchSuccessful(places);
+        onFinishSearch();
+    }
+
+    @Override
+    public void onPlacesSearchCancelled(List<Place> places) {
+        onFragmentInteractionListener.onFinishSearchFailed();
+        onFinishSearch();
     }
 
     /**
@@ -194,52 +214,5 @@ public class SearchFragment extends Fragment {
 
         LatLngBounds getSearchableArea();
 
-    }
-
-    private class PlacesQuery {
-        double lat;
-        double lng;
-        double radius;
-        String types;
-        String lang = "es";
-        String orderBy;
-        String keywords;
-    }
-
-    private class GetPlacesAsyncTask extends AsyncTask<PlacesQuery, Integer, List<Place>> {
-
-        @Override
-        protected List<Place> doInBackground(PlacesQuery... params) {
-            PlacesQuery query = params[0];
-            if (query.keywords != null) {
-                return client.getNearbyPlaces(query.lat, query.lng, query.radius,
-                        Param.name("language").value(query.lang),
-                        Param.name("types").value(query.types),
-                        Param.name("rankby").value(query.orderBy),
-                        Param.name("keyword").value(query.keywords));
-            } else {
-                return client.getNearbyPlaces(query.lat, query.lng, query.radius,
-                        Param.name("language").value(query.lang),
-                        Param.name("types").value(query.types),
-                        Param.name("rankBy").value(query.orderBy));
-            }
-        }
-
-        @Override
-        protected void onCancelled(List<Place> places) {
-            super.onCancelled(places);
-            mListener.onFinishSearchFailed();
-            onFinishSearch();
-        }
-
-        @Override
-        protected void onPostExecute(List<Place> places) {
-            super.onPostExecute(places);
-            for (Place place : places) {
-                Log.d("Place:", place.getName());
-            }
-            mListener.onFinishSearchSuccessful(places);
-            onFinishSearch();
-        }
     }
 }
