@@ -138,7 +138,7 @@ public class SearchUsersActivity extends AppCompatActivity implements SearchUser
     private void processUserSelected(List<String> accountTypes){
         NodeData nodeData = new NodeData(userSelected.name, userSelected.followersCount,
                 userSelected.description, null, null,
-                userSelected.profileImageUrl);
+                userSelected.profileImageUrl, placeId);
         NodeLocation nodeLocation = new NodeLocation(placeLocation);
         Node node = new Node(userSelected.getId(), nodeData, nodeLocation);
 

@@ -11,17 +11,19 @@ public class NodeData {
     private String lastUpdate;
     private Long lastStatusId;
     private String imageUrl;
+    private String placeId;
 
     public NodeData() {}
 
     public NodeData(String name, int followersCount, String desc, String lastUpdate, Long lastStatusId,
-                    String imageUrl) {
+                    String imageUrl, String placeId) {
         this.name = name;
         this.desc = desc;
         this.followersCount = followersCount;
         this.lastUpdate = lastUpdate;
         this.lastStatusId = lastStatusId;
         this.imageUrl = imageUrl;
+        this.placeId = placeId;
     }
 
     public String getName() {
@@ -70,5 +72,13 @@ public class NodeData {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getPlaceId() {
+        return placeId;
+    }
+
+    public void setPlaceId(String placeId) {
+        this.placeId = placeId;
     }
 }
